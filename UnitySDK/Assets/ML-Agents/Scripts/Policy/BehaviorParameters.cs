@@ -1,5 +1,6 @@
 using Barracuda;
 using System;
+using MLAgents.RewardProvider;
 using UnityEngine;
 
 namespace MLAgents
@@ -45,22 +46,22 @@ namespace MLAgents
             get { return m_BehaviorName; }
         }
 
-        public IPolicy GeneratePolicy(Func<float[]> heuristic)
+        public IPolicy GeneratePolicy(Func<float[]> heuristic, IRewardProvider rewardProvider)
         {
             switch (m_BehaviorType)
             {
                 case BehaviorType.HeuristicOnly:
                     return new HeuristicPolicy(heuristic);
                 case BehaviorType.InferenceOnly:
-                    return new BarracudaPolicy(m_BrainParameters, m_Model, m_InferenceDevice);
+                    return new BarracudaPolicy(m_BrainParameters, m_Model, m_InferenceDevice, rewardProvider);
                 case BehaviorType.Default:
                     if (FindObjectOfType<Academy>().IsCommunicatorOn)
                     {
-                        return new RemotePolicy(m_BrainParameters, m_BehaviorName);
+                        return new RemotePolicy(m_BrainParameters, m_BehaviorName, rewardProvider);
                     }
                     if (m_Model != null)
                     {
-                        return new BarracudaPolicy(m_BrainParameters, m_Model, m_InferenceDevice);
+                        return new BarracudaPolicy(m_BrainParameters, m_Model, m_InferenceDevice, rewardProvider);
                     }
                     else
                     {
